@@ -1,2 +1,2 @@
 # CSC425
- Houses my CSC425 final project
+ My final project for CSC425 lives here

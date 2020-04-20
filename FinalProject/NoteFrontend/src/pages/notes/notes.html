@@ -1,0 +1,15 @@
+<template>
+    <require from="./notes.css"></require>
+
+    <div class="notespage_display">
+        <h2>Hello!</h2>
+        <h3>This is the notes page!</h3>
+        <div if.bind="!isLoggedIn"><h3>Please log in to view notes</h3></div>
+        <div if.bind="isLoggedIn">
+            <label for="search"><h2>Search:</h2></label>
+            <input type="text" value.bind="search" class="form-control" id="search" placeholder="Search...">
+            <button type="submit" class="btn btn-default" click.trigger="submit()">Submit</button>
+        </div>
+    </div>
+</template>
+  

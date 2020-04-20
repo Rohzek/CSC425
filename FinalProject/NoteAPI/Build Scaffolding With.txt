@@ -1,0 +1,1 @@
+Scaffold-DbContext "server=rohzek.cf;user=rohzek;password=IWontKnowThis1;database=CSC425" "Pomelo.EntityFrameworkCore.MySql" -OutputDir Scaffolding -f

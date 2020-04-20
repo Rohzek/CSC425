@@ -1,0 +1,11 @@
+<template>
+    <require from="./home.css"></require>
+
+    <div class="bg"></div>
+    <div class="homepage_display">
+        <h2>Hello!</h2>
+        <div if.bind="isLoggedIn"><h3>You are logged in as: ${username}</h3></div>
+        <div if.bind="!isLoggedIn"><h3>You are not logged in</h3></div>
+    </div>
+</template>
+  
