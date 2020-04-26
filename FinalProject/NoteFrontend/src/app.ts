@@ -91,6 +91,7 @@ export class App {
         nav: !Config.IsLoggedIn,
         title: 'Login'
       },
+      /*
       {
         route: 'settings',
         name: 'settings',
@@ -98,6 +99,7 @@ export class App {
         nav: Config.IsLoggedIn,
         title: 'Settings'
       },
+      */
       {
         route: 'logout',
         name: 'logout',
@@ -108,8 +110,8 @@ export class App {
     ]);
 
     // Enable removal of # from URL
-    config.options.pushState = true;
-    config.options.hashChange = false;
+    config.options.pushState = false;
+    config.options.hashChange = true;
     config.options.root = '/';
 
     // For navigating to unknown pages

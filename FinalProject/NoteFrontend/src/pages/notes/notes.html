@@ -33,7 +33,7 @@
                         <tr repeat.for="note of notes">
                             <td>${note.Username}</td>
                             <td>${note.ClassID}</td>
-                            <td>${note.Note}</td>
+                            <td><span class="notedisplay">${note.Note}</span></td>
                             <td><button click.delegate = "downloadFile(note)">DOWNLOAD</button></td>
                             <td><input type="datetime-local" id="notedateinput" value.bind="note.NoteDate" readonly></td>
                             <td><input type="datetime-local" id="notedateinput" value.bind="note.UploadDate" readonly></td>
