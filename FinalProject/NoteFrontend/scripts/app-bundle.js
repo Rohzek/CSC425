@@ -357,11 +357,53 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-define('pages/notes/notes',["require", "exports", "aurelia-framework", "aurelia-fetch-client", "../../globals"], function (require, exports, aurelia_framework_1, aurelia_fetch_client_1, globals_1) {
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+define('pages/notes/notes',["require", "exports", "aurelia-framework", "aurelia-fetch-client", "../../scripts/json/returncode", "../../scripts/json/notesreturn", "../../scripts/json/viewerupdate", "../../globals"], function (require, exports, aurelia_framework_1, aurelia_fetch_client_1, returncode_1, notesreturn_1, viewerupdate_1, globals_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Notes = (function () {
         function Notes(httpClient) {
+            this.APIKEY = "?api_key=6c8s9c5442051f2i6n6a3l";
+            this.notes = new Array();
+            this.allowedUsers = "";
+            this.newAllowUser = "";
+            this.newNote = new notesreturn_1.NotesReturn(globals_1.Config.Username, "", "", "", "", "", "", new Date(), new Date(), []);
+            this.selectedFiles = [];
             this.isLoggedIn = globals_1.Config.IsLoggedIn;
             httpClient.configure(function (config) {
                 config
@@ -373,24 +415,168 @@ define('pages/notes/notes',["require", "exports", "aurelia-framework", "aurelia-
                 });
             });
             this.httpClient = httpClient;
+            this.user = globals_1.Config.Username;
+            this.date = this.formatDateBlock(new Date());
             this.fetchNotes();
         }
+        Notes.prototype.formatDateBlock = function (date) {
+            var offset = date.getTimezoneOffset() * 60000;
+            var adjustedDate = new Date(date.getTime() - offset);
+            var formattedDate = adjustedDate.toISOString().substring(0, 16);
+            return formattedDate;
+        };
         Notes.prototype.fetchNotes = function () {
-            console.log("Fetching notes for user: " + globals_1.Config.Username);
-            this.callAPI(globals_1.Config.Username, '');
+            this.callAPIGET(globals_1.Config.Username, '');
         };
-        Notes.prototype.submit = function () {
-            console.log("Fetching notes for user: " + globals_1.Config.Username + " with search term: " + this.search);
-            this.callAPI(globals_1.Config.Username, this.search);
+        Notes.prototype.submitSearch = function () {
+            this.callAPIGET(globals_1.Config.Username, this.search);
         };
-        Notes.prototype.callAPI = function (username, search) {
-            this.httpClient.fetch('notes?api_key=6c8s9c5442051f2i6n6a3l&username=' + username + (search.length > 0 ? '&search=' + search : ''), {
+        Notes.prototype.callAPIGET = function (username, search) {
+            var _this = this;
+            this.httpClient.fetch('notes' + this.APIKEY + '&username=' + username + (search !== null && search.length > 0 ? '&search=' + search : ''), {
                 method: 'GET',
             })
                 .then(function (response) { return response.json(); })
                 .then(function (data) {
-                console.log(data);
+                _this.notes = new Array();
+                for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+                    var entry = data_1[_i];
+                    var note = new notesreturn_1.NotesReturn(entry.Username, entry.NoteID, entry.ClassID, entry.Note, entry.NoteFile, entry.NoteFileName, entry.Extension, _this.formatDateBlock(new Date(entry.NoteDate)), _this.formatDateBlock(new Date(entry.UploadDate)), entry.Users);
+                    _this.notes.push(note);
+                }
             });
+        };
+        Notes.prototype.callAPIPOST = function () {
+            this.httpClient.fetch('notes' + this.APIKEY, {
+                method: 'POST',
+                body: JSON.stringify(this.newNote),
+            })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                var code = new returncode_1.ReturnCode(data.Code, data.Name, data.Description);
+            });
+            this.reload();
+        };
+        Notes.prototype.callAPIDELETE = function (NoteID) {
+            this.httpClient.fetch('notes' + this.APIKEY + '&noteid=' + NoteID + '&username=' + this.user, {
+                method: 'DELETE',
+            })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                var code = new returncode_1.ReturnCode(data.Code, data.Name, data.Description);
+                console.log(code);
+            });
+            this.reload();
+        };
+        Notes.prototype.callAPIADDUSER = function (update) {
+            this.httpClient.fetch('viewer' + this.APIKEY, {
+                method: 'PUT',
+                body: JSON.stringify(update),
+            })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                var code = new returncode_1.ReturnCode(data.Code, data.Name, data.Description);
+            });
+            this.reload();
+        };
+        Notes.prototype.callAPIREMOVEUSER = function (update) {
+            this.httpClient.fetch('viewer' + this.APIKEY + '&noteid=' + update.NoteID + '&username=' + update.Username, {
+                method: 'DELETE',
+            })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                var code = new returncode_1.ReturnCode(data.Code, data.Name, data.Description);
+            });
+            this.reload();
+        };
+        Notes.prototype.isOwner = function (username) {
+            if (username === this.user) {
+                return true;
+            }
+            return false;
+        };
+        Notes.prototype.addNote = function () {
+            return __awaiter(this, void 0, void 0, function () {
+                var file, name, extension, text, authUsers;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (this.selectedFiles.length == 0) {
+                                alert("Please choose a file to upload.");
+                            }
+                            if (!(this.selectedFiles[0].size > (1000000 * 65))) return [3, 1];
+                            alert("Please limit your text files to 64mb or less");
+                            return [3, 4];
+                        case 1:
+                            if (!(this.newNote.ClassID == null || this.newNote.ClassID.length == 0)) return [3, 2];
+                            alert("You forgot to specify a class");
+                            return [3, 4];
+                        case 2:
+                            file = this.selectedFiles[0];
+                            name = file.name.replace(/\.txt|\.rtf/, '');
+                            extension = file.name.match(/\.txt|\.rtf/)[0];
+                            return [4, file.text().then(function (value) { return text = value; })];
+                        case 3:
+                            text = _a.sent();
+                            if (this.allowedUsers.length > 0) {
+                                authUsers = this.allowedUsers.split(",");
+                                this.newNote.Users = authUsers;
+                            }
+                            this.newNote.Username = this.user;
+                            this.newNote.NoteID = 0;
+                            this.newNote.NoteFileName = name;
+                            this.newNote.Extension = extension;
+                            this.newNote.Note = text;
+                            this.newNote.NoteFile = btoa(text);
+                            this.newNote.NoteDate = this.date;
+                            console.log(JSON.stringify(this.newNote));
+                            this.callAPIPOST();
+                            _a.label = 4;
+                        case 4: return [2];
+                    }
+                });
+            });
+        };
+        Notes.prototype.deleteNote = function (NoteID) {
+            console.log("Deleting note with id " + NoteID);
+            this.callAPIDELETE(NoteID);
+        };
+        Notes.prototype.downloadFile = function (note) {
+            var text = atob(note.NoteFile);
+            var name = note.NoteFileName;
+            var ext = note.Extension;
+            this.download(name + ext, text);
+        };
+        Notes.prototype.download = function (filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-16,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        };
+        Notes.prototype.removeNote = function (note) {
+            console.log("Remove yourself from viewing a note");
+            var update = new viewerupdate_1.ViewerUpdate(note, this.user);
+            this.callAPIREMOVEUSER(update);
+        };
+        Notes.prototype.updateUsers = function (note, user, operation) {
+            if (user.length == 0) {
+                alert("You didn't specify a user");
+            }
+            else {
+                var update = new viewerupdate_1.ViewerUpdate(note, user);
+                if (operation === "ADD") {
+                    this.callAPIADDUSER(update);
+                }
+                if (operation === "REMOVE") {
+                    this.callAPIREMOVEUSER(update);
+                }
+            }
+        };
+        Notes.prototype.reload = function () {
+            window.location.reload();
         };
         Notes = __decorate([
             aurelia_framework_1.autoinject,
@@ -401,8 +587,8 @@ define('pages/notes/notes',["require", "exports", "aurelia-framework", "aurelia-
     exports.Notes = Notes;
 });
 ;
-define('text!pages/notes/notes.css',[],function(){return ".notespage_display {\n  margin-top: 10px;\n  margin-left: 30px;\n  margin-right: 30px;\n  text-align: center;\n}\n";});;
-define('text!pages/notes/notes.html',[],function(){return "<template>\r\n    <require from=\"./notes.css\"></require>\r\n\r\n    <div class=\"notespage_display\">\r\n        <h2>Hello!</h2>\r\n        <h3>This is the notes page!</h3>\r\n        <div if.bind=\"!isLoggedIn\"><h3>Please log in to view notes</h3></div>\r\n        <div if.bind=\"isLoggedIn\">\r\n            <label for=\"search\"><h2>Search:</h2></label>\r\n            <input type=\"text\" value.bind=\"search\" class=\"form-control\" id=\"search\" placeholder=\"Search...\">\r\n            <button type=\"submit\" class=\"btn btn-default\" click.trigger=\"submit()\">Submit</button>\r\n        </div>\r\n    </div>\r\n</template>\r\n  ";});;
+define('text!pages/notes/notes.css',[],function(){return ".notespage_display {\n  margin-top: 10px;\n  margin-left: 30px;\n  margin-right: 30px;\n  text-align: center;\n}\nbutton {\n  border: thick;\n  color: black;\n  margin: 2px;\n}\n.searchbar_label .searchbar_input .searchbar_button {\n  display: inline-block;\n  white-space: nowrap;\n  overflow-x: auto;\n}\ninput[type=\"datetime-local\"] {\n  color: black;\n}\ninput[type=\"file\"] {\n  width: 200px;\n}\ninput[type=\"text\"] {\n  color: black;\n  margin: 4px;\n}\n.updateViewer {\n  width: 100px;\n}\n.table {\n  background-color: #000000a8;\n  color: white;\n}\nth {\n  text-align: center;\n}\n.newrow {\n  background-color: #000000dc;\n}\n";});;
+define('text!pages/notes/notes.html',[],function(){return "<template>\r\n    <require from=\"./notes.css\"></require>\r\n\r\n    <div class=\"notespage_display\">\r\n        <h2>Hello!</h2>\r\n        <h3>This is the notes page!</h3>\r\n        <div if.bind=\"!isLoggedIn\"><h3>Please log in to view notes</h3></div>\r\n        <div if.bind=\"isLoggedIn\">\r\n            <div class=\"searchbar\">\r\n                <label for=\"search\" class=\"searchbar_label\"><h2>Search:</h2></label>\r\n                <input type=\"text\" value.bind=\"search\" class=\"searchbar_input\" id=\"search\" placeholder=\"Search...\">\r\n                <button type=\"submit\" class=\"searchbar_button\" click.trigger=\"submitSearch()\">Submit</button>\r\n            </div>\r\n            <div class=\"displaytable\">\r\n                <!--<table class=\"table\" aurelia-table=\"data.bind: users; display-data.bind: $displayData\">-->\r\n                <table class=\"table\" id=\"table\">\r\n                    <thead>\r\n                        <!-- Labels -->\r\n                        <tr>\r\n                            <th>Author</th>\r\n                            <th>Class</th>\r\n                            <th>Note</th>\r\n                            <th>File</th>\r\n                            <th>Creation Date</th>\r\n                            <th>Upload Date</th>\r\n                            <th>Authorized Viewers:</th>\r\n                            <th>Add/Remove Viewer:</th>\r\n                            <th>Controls:</th>\r\n                        </tr>\r\n                    </thead>\r\n                    <tbody>\r\n                        <!-- Info Rows -->\r\n                        <tr repeat.for=\"note of notes\">\r\n                            <td>${note.Username}</td>\r\n                            <td>${note.ClassID}</td>\r\n                            <td>${note.Note}</td>\r\n                            <td><button click.delegate = \"downloadFile(note)\">DOWNLOAD</button></td>\r\n                            <td><input type=\"datetime-local\" id=\"notedateinput\" value.bind=\"note.NoteDate\" readonly></td>\r\n                            <td><input type=\"datetime-local\" id=\"notedateinput\" value.bind=\"note.UploadDate\" readonly></td>\r\n                            <td>${note.Users}</td>\r\n                            <td><span if.bind=\"isOwner(note.Username)\"><input type=\"text\" class=\"updateViewer\" value.bind=\"newAllowUser\" placeholder=\"Username...\"><button click.delegate = \"updateUsers(note.NoteID, newAllowUser, 'ADD')\">ADD</button><button click.delegate = \"updateUsers(note.NoteID, newAllowUser, 'REMOVE')\">REMOVE</button></span></td>\r\n                            <td>\r\n                                <button if.bind=\"!isOwner(note.Username)\" click.delegate = \"removeNote(note.NoteID)\">REMOVE</button>\r\n                                <button if.bind=\"isOwner(note.Username)\" click.delegate = \"deleteNote(note.NoteID)\">DELETE</button>\r\n                            </td>\r\n                        </tr>\r\n                        <!-- New Note Row -->\r\n                        <tr class=\"newrow\">\r\n                            <td><span>${user}</span></td>\r\n                            <td><span><input type=\"text\" value.bind=\"newNote.ClassID\" placeholder=\"CSC425\"></span></td>\r\n                            <td><span><!-- Placeholder for note text--></span></td>\r\n                            <td>\r\n                                <input type=\"file\" id=\"fileUpload\" name=\"fileUpload\" accept=\".txt\" files.bind=\"selectedFiles\">\r\n                            </td>\r\n                            <td><span><input type=\"datetime-local\" id=\"datetime\" value.bind=\"date\"></span></td>\r\n                            <td><span><!-- Placeholder for Upload date--></span></td>\r\n                            <td><span><input type=\"text\" value.bind=\"allowedUsers\" placeholder=\"Authorized Users...\"></span></td>\r\n                            <td><span><!-- Placeholder for Update Users--></span></td>\r\n                            <td>\r\n                                <button click.delegate = \"addNote()\">SUBMIT</button>\r\n                            </td>\r\n                        </tr>\r\n                    </tbody>\r\n                </table>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</template>\r\n  ";});;
 define('text!pages/routing/nav-bar.html',[],function(){return "<template bindable=\"router\">\n    <nav class=\"navbar navbar-default navbar-fixed-top\"; role=\"navigation\">\n      <div class=\"navbar-header\">\n        <button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\"#navigation-navbar-collapse-1\">\n          <span class=\"sr-only\">Toggle Navigation</span>\n          <span class=\"icon-bar\"></span>\n          <span class=\"icon-bar\"></span>\n          <span class=\"icon-bar\"></span>\n        </button>\n        <a class=\"navbar-brand\" href=\"/\">\n          <i class=\"fa fa-home\"></i>\n          <span>rohzek.cf</span>\n        </a>\n      </div>\n  \n      <div class=\"collapse navbar-collapse\" id=\"navigation-navbar-collapse-1\">\n        <ul class=\"nav navbar-nav\">\n          <!-- Home -->\n          <li class=\"nav-item\"><a href.bind=\"router.navigation[0].href\">${router.navigation[0].title}</a></li>\n          <!-- Notes -->\n          <li class=\"nav-item\"><a href.bind=\"router.navigation[1].href\">${router.navigation[1].title}</a></li>\n        </ul>\n\n        <ul class=\"nav navbar-nav navbar-right\">\n          <!-- Either Signup or Settings -->\n          <li class=\"nav-item\"><a href.bind=\"router.navigation[2].href\">${router.navigation[2].title}</a></li>\n          <!-- Either Login or Logout -->\n          <li class=\"nav-item\"><a href.bind=\"router.navigation[3].href\">${router.navigation[3].title}</a></li>\n        </ul>\n      </div>\n    </nav>\n  </template>";});;
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -808,6 +994,27 @@ define('scripts/blur-image',["require", "exports", "aurelia-framework"], functio
     ;
 });
 ;
+define('scripts/json/notesreturn',["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var NotesReturn = (function () {
+        function NotesReturn(username, noteid, classid, note, notefile, notefilename, extension, notedate, uploaddate, users) {
+            this.Username = username;
+            this.NoteID = noteid;
+            this.ClassID = classid;
+            this.Note = note;
+            this.NoteFile = notefile;
+            this.NoteFileName = notefilename;
+            this.Extension = extension;
+            this.NoteDate = notedate;
+            this.UploadDate = uploaddate;
+            this.Users = users;
+        }
+        return NotesReturn;
+    }());
+    exports.NotesReturn = NotesReturn;
+});
+;
 define('scripts/json/returncode',["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -822,6 +1029,19 @@ define('scripts/json/returncode',["require", "exports"], function (require, expo
     exports.ReturnCode = ReturnCode;
 });
 ;
-define('text!styles.css',[],function(){return "@font-face {\n  font-family: 'Gaegu';\n  font-style: normal;\n  font-weight: 400;\n  src: local('Gaegu Regular'), local('Gaegu-Regular'), url(https://fonts.gstatic.com/s/gaegu/v8/TuGfUVB6Up9NU5ZMq9w.ttf) format('truetype');\n}\n@font-face {\n  font-family: 'Pacifico';\n  font-style: normal;\n  font-weight: 400;\n  src: local('Pacifico Regular'), local('Pacifico-Regular'), url(https://fonts.gstatic.com/s/pacifico/v16/FwZY7-Qmy14u9lezJ96A.ttf) format('truetype');\n}\n@font-face {\n  font-family: 'Permanent Marker';\n  font-style: normal;\n  font-weight: 400;\n  src: local('Permanent Marker Regular'), local('PermanentMarker-Regular'), url(https://fonts.gstatic.com/s/permanentmarker/v9/Fh4uPib9Iyv2ucM6pGQMWimMp004Hao.ttf) format('truetype');\n}\nbody {\n  color: #3399cc;\n  text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;\n  font-family: 'Gaegu', cursive;\n}\n.bg {\n  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.6)), url('images/bg.jpg');\n  background-attachment: fixed;\n  background-color: #000;\n  background-position: center;\n  background-repeat: no-repeat;\n  background-size: cover;\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 100%;\n  width: 100%;\n  z-index: -99;\n  filter: blur(0px);\n  -webkit-filter: blur(0px);\n}\n.splash {\n  text-align: center;\n  margin: 10% 0 0 0;\n  box-sizing: border-box;\n}\n.splash .message {\n  font-size: 72px;\n  line-height: 72px;\n  text-shadow: rgba(0, 0, 0, 0.5) 0 0 15px;\n  text-transform: uppercase;\n  font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n}\n.splash .fa-spinner {\n  text-align: center;\n  display: inline-block;\n  font-size: 72px;\n  margin-top: 50px;\n}\n.page-host {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 50px;\n  bottom: 0;\n  overflow-x: hidden;\n  overflow-y: auto;\n}\n@media print {\n  .page-host {\n    position: absolute;\n    left: 10px;\n    right: 0;\n    top: 50px;\n    bottom: 0;\n    overflow-y: inherit;\n    overflow-x: inherit;\n  }\n}\nsection {\n  margin: 0 20px;\n}\n.navbar-default {\n  background-color: #000000d5;\n  border-color: #000000d5;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n  font-family: 'Permanent Marker', cursive;\n  font-size: x-large;\n}\n.navbar-default .navbar-brand {\n  color: white;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n  font-family: 'Pacifico', cursive;\n  font-size: large;\n}\n.navbar-default .navbar-brand:hover {\n  color: #e12885;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > .active > a {\n  color: white;\n  background-color: #000000d5;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > .active > a:focus {\n  color: #e12885;\n  background-color: #000000d5;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > .active > a:hover {\n  color: #e12885;\n  background-color: #000000d5;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > li > a {\n  color: rgba(204, 255, 0, 0.8);\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > li > a:hover {\n  color: #e12885;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-nav li.loader {\n  margin: 12px 24px 0 6px;\n}\n.navbar-right {\n  margin-right: 15px;\n}\n.pictureDetail {\n  max-width: 425px;\n}\n/* animate page transitions */\nsection.au-enter-active {\n  -webkit-animation: fadeInRight 1s;\n  animation: fadeInRight 1s;\n}\ndiv.au-stagger {\n  /* 50ms will be applied between each successive enter operation */\n  -webkit-animation-delay: 50ms;\n  animation-delay: 50ms;\n}\n.card-container.au-enter {\n  opacity: 0;\n}\n.card-container.au-enter-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n.card {\n  overflow: hidden;\n  position: relative;\n  border: 1px solid #CCC;\n  border-radius: 8px;\n  text-align: center;\n  padding: 0;\n  background-color: #337ab7;\n  color: #88acd9;\n  margin-bottom: 32px;\n  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);\n}\n.card .content {\n  margin-top: 10px;\n}\n.card .content .name {\n  color: white;\n  text-shadow: 0 0 6px rgba(0, 0, 0, 0.5);\n  font-size: 18px;\n}\n.card .header-bg {\n  /* This stretches the canvas across the entire hero unit */\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 70px;\n  border-bottom: 1px #FFF solid;\n  border-radius: 6px 6px 0 0;\n}\n.card .avatar {\n  position: relative;\n  margin-top: 15px;\n  z-index: 100;\n}\n.card .avatar img {\n  width: 100px;\n  height: 100px;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n  border: 2px #FFF solid;\n}\n/* animation definitions */\n@-webkit-keyframes fadeInRight {\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n@keyframes fadeInRight {\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    -ms-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: none;\n    -ms-transform: none;\n    transform: none;\n  }\n}\n@-webkit-keyframes fadeIn {\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes fadeIn {\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 1;\n  }\n}\n";});;
+define('scripts/json/viewerupdate',["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var ViewerUpdate = (function () {
+        function ViewerUpdate(noteid, username) {
+            this.NoteID = noteid;
+            this.Username = username;
+        }
+        return ViewerUpdate;
+    }());
+    exports.ViewerUpdate = ViewerUpdate;
+});
+;
+define('text!styles.css',[],function(){return "/*@text_shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;*/\n@font-face {\n  font-family: 'Gaegu';\n  font-style: normal;\n  font-weight: 400;\n  src: local('Gaegu Regular'), local('Gaegu-Regular'), url(https://fonts.gstatic.com/s/gaegu/v8/TuGfUVB6Up9NU5ZMq9w.ttf) format('truetype');\n}\n@font-face {\n  font-family: 'Pacifico';\n  font-style: normal;\n  font-weight: 400;\n  src: local('Pacifico Regular'), local('Pacifico-Regular'), url(https://fonts.gstatic.com/s/pacifico/v16/FwZY7-Qmy14u9lezJ96A.ttf) format('truetype');\n}\n@font-face {\n  font-family: 'Permanent Marker';\n  font-style: normal;\n  font-weight: 400;\n  src: local('Permanent Marker Regular'), local('PermanentMarker-Regular'), url(https://fonts.gstatic.com/s/permanentmarker/v9/Fh4uPib9Iyv2ucM6pGQMWimMp004Hao.ttf) format('truetype');\n}\nbody {\n  color: #3cbeff;\n  text-shadow: -1px 0 #000000d5, 0 1px #000000d5, 1px 0 #000000d5, 0 -1px #000000d5;\n  font-family: 'Gaegu', cursive;\n}\n.bg {\n  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.6)), url('images/bg.jpg');\n  background-attachment: fixed;\n  background-color: #000;\n  background-position: center;\n  background-repeat: no-repeat;\n  background-size: cover;\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 100%;\n  width: 100%;\n  z-index: -99;\n  filter: blur(0px);\n  -webkit-filter: blur(0px);\n}\n.splash {\n  text-align: center;\n  margin: 10% 0 0 0;\n  box-sizing: border-box;\n}\n.splash .message {\n  font-size: 72px;\n  line-height: 72px;\n  text-shadow: rgba(0, 0, 0, 0.5) 0 0 15px;\n  text-transform: uppercase;\n  font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n}\n.splash .fa-spinner {\n  text-align: center;\n  display: inline-block;\n  font-size: 72px;\n  margin-top: 50px;\n}\n.page-host {\n  position: absolute;\n  left: 0;\n  right: 0;\n  top: 50px;\n  bottom: 0;\n  overflow-x: hidden;\n  overflow-y: auto;\n}\n@media print {\n  .page-host {\n    position: absolute;\n    left: 10px;\n    right: 0;\n    top: 50px;\n    bottom: 0;\n    overflow-y: inherit;\n    overflow-x: inherit;\n  }\n}\nsection {\n  margin: 0 20px;\n}\n.navbar-default {\n  background-color: #000000d5;\n  border-color: #000000d5;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n  font-family: 'Permanent Marker', cursive;\n  font-size: x-large;\n}\n.navbar-default .navbar-brand {\n  color: white;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n  font-family: 'Pacifico', cursive;\n  font-size: large;\n}\n.navbar-default .navbar-brand:hover {\n  color: #e12885;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > .active > a {\n  color: white;\n  background-color: #000000d5;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > .active > a:focus {\n  color: #e12885;\n  background-color: #000000d5;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > .active > a:hover {\n  color: #e12885;\n  background-color: #000000d5;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > li > a {\n  color: rgba(204, 255, 0, 0.8);\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-default .navbar-nav > li > a:hover {\n  color: #e12885;\n  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;\n}\n.navbar-nav li.loader {\n  margin: 12px 24px 0 6px;\n}\n.navbar-right {\n  margin-right: 15px;\n}\n.pictureDetail {\n  max-width: 425px;\n}\n/* animate page transitions */\nsection.au-enter-active {\n  -webkit-animation: fadeInRight 1s;\n  animation: fadeInRight 1s;\n}\ndiv.au-stagger {\n  /* 50ms will be applied between each successive enter operation */\n  -webkit-animation-delay: 50ms;\n  animation-delay: 50ms;\n}\n.card-container.au-enter {\n  opacity: 0;\n}\n.card-container.au-enter-active {\n  -webkit-animation: fadeIn 2s;\n  animation: fadeIn 2s;\n}\n.card {\n  overflow: hidden;\n  position: relative;\n  border: 1px solid #CCC;\n  border-radius: 8px;\n  text-align: center;\n  padding: 0;\n  background-color: #337ab7;\n  color: #88acd9;\n  margin-bottom: 32px;\n  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);\n}\n.card .content {\n  margin-top: 10px;\n}\n.card .content .name {\n  color: white;\n  text-shadow: 0 0 6px rgba(0, 0, 0, 0.5);\n  font-size: 18px;\n}\n.card .header-bg {\n  /* This stretches the canvas across the entire hero unit */\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 70px;\n  border-bottom: 1px #FFF solid;\n  border-radius: 6px 6px 0 0;\n}\n.card .avatar {\n  position: relative;\n  margin-top: 15px;\n  z-index: 100;\n}\n.card .avatar img {\n  width: 100px;\n  height: 100px;\n  -webkit-border-radius: 50%;\n  -moz-border-radius: 50%;\n  border-radius: 50%;\n  border: 2px #FFF solid;\n}\n/* animation definitions */\n@-webkit-keyframes fadeInRight {\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: none;\n    transform: none;\n  }\n}\n@keyframes fadeInRight {\n  0% {\n    opacity: 0;\n    -webkit-transform: translate3d(100%, 0, 0);\n    -ms-transform: translate3d(100%, 0, 0);\n    transform: translate3d(100%, 0, 0);\n  }\n  100% {\n    opacity: 1;\n    -webkit-transform: none;\n    -ms-transform: none;\n    transform: none;\n  }\n}\n@-webkit-keyframes fadeIn {\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 1;\n  }\n}\n@keyframes fadeIn {\n  0% {\n    opacity: 0;\n  }\n  100% {\n    opacity: 1;\n  }\n}\n";});;
 define('resources',['resources/index'],function(m){return m;});
 //# sourceMappingURL=app-bundle.js.map

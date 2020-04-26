@@ -36448,7 +36448,9 @@ function _aureliaConfigureModuleLoader(){requirejs.config({
       "resources",
       "resources/index",
       "scripts/blur-image",
+      "scripts/json/notesreturn",
       "scripts/json/returncode",
+      "scripts/json/viewerupdate",
       "text!styles.css"
     ]
   }

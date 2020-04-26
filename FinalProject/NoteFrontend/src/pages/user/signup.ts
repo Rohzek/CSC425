@@ -1,7 +1,6 @@
 import { autoinject, Aurelia } from 'aurelia-framework';
 import {HttpClient, json, HttpClientConfiguration} from 'aurelia-fetch-client';
 import {ReturnCode} from '../../scripts/json/returncode';
-import { App } from '../../app';
 
 @autoinject
 export class Signup {

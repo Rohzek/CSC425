@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NoteAPI.Classes;
 using NoteAPI.Scaffolding;
+using System.Net;
+using System.Net.Http;
 using System.Web.Http.Cors;
 
 namespace NoteAPI.Controllers
@@ -25,6 +27,13 @@ namespace NoteAPI.Controllers
             }
 
             return signup.Signup(db, remoteIPAddress);
+        }
+
+        public HttpResponseMessage Options()
+        {
+            var response = new HttpResponseMessage();
+            response.StatusCode = HttpStatusCode.OK;
+            return response;
         }
     }
 }

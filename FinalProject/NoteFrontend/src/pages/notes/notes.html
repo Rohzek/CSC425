@@ -6,9 +6,63 @@
         <h3>This is the notes page!</h3>
         <div if.bind="!isLoggedIn"><h3>Please log in to view notes</h3></div>
         <div if.bind="isLoggedIn">
-            <label for="search"><h2>Search:</h2></label>
-            <input type="text" value.bind="search" class="form-control" id="search" placeholder="Search...">
-            <button type="submit" class="btn btn-default" click.trigger="submit()">Submit</button>
+            <div class="searchbar">
+                <label for="search" class="searchbar_label"><h2>Search:</h2></label>
+                <input type="text" value.bind="search" class="searchbar_input" id="search" placeholder="Search...">
+                <button type="submit" class="searchbar_button" click.trigger="submitSearch()">Submit</button>
+            </div>
+            <div class="displaytable">
+                <!--<table class="table" aurelia-table="data.bind: users; display-data.bind: $displayData">-->
+                <table class="table" id="table">
+                    <thead>
+                        <!-- Labels -->
+                        <tr>
+                            <th>Author</th>
+                            <th>Class</th>
+                            <th>Note</th>
+                            <th>File</th>
+                            <th>Creation Date</th>
+                            <th>Upload Date</th>
+                            <th>Authorized Viewers:</th>
+                            <th>Add/Remove Viewer:</th>
+                            <th>Controls:</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Info Rows -->
+                        <tr repeat.for="note of notes">
+                            <td>${note.Username}</td>
+                            <td>${note.ClassID}</td>
+                            <td>${note.Note}</td>
+                            <td><button click.delegate = "downloadFile(note)">DOWNLOAD</button></td>
+                            <td><input type="datetime-local" id="notedateinput" value.bind="note.NoteDate" readonly></td>
+                            <td><input type="datetime-local" id="notedateinput" value.bind="note.UploadDate" readonly></td>
+                            <td>${note.Users}</td>
+                            <td><span if.bind="isOwner(note.Username)"><input type="text" class="updateViewer" value.bind="newAllowUser" placeholder="Username..."><button click.delegate = "updateUsers(note.NoteID, newAllowUser, 'ADD')">ADD</button><button click.delegate = "updateUsers(note.NoteID, newAllowUser, 'REMOVE')">REMOVE</button></span></td>
+                            <td>
+                                <button if.bind="!isOwner(note.Username)" click.delegate = "removeNote(note.NoteID)">REMOVE</button>
+                                <button if.bind="isOwner(note.Username)" click.delegate = "deleteNote(note.NoteID)">DELETE</button>
+                            </td>
+                        </tr>
+                        <!-- New Note Row -->
+                        <tr class="newrow">
+                            <td><span>${user}</span></td>
+                            <td><span><input type="text" value.bind="newNote.ClassID" placeholder="CSC425"></span></td>
+                            <td><span><!-- Placeholder for note text--></span></td>
+                            <td>
+                                <input type="file" id="fileUpload" name="fileUpload" accept=".txt" files.bind="selectedFiles">
+                            </td>
+                            <td><span><input type="datetime-local" id="datetime" value.bind="date"></span></td>
+                            <td><span><!-- Placeholder for Upload date--></span></td>
+                            <td><span><input type="text" value.bind="allowedUsers" placeholder="Authorized Users..."></span></td>
+                            <td><span><!-- Placeholder for Update Users--></span></td>
+                            <td>
+                                <button click.delegate = "addNote()">SUBMIT</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </template>

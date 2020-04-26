@@ -111,6 +111,7 @@ export class App {
     config.options.pushState = true;
     config.options.hashChange = false;
     config.options.root = '/';
+
     // For navigating to unknown pages
     config.fallbackRoute('home');
     config.mapUnknownRoutes('home');

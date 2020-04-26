@@ -8,15 +8,17 @@
 @miku_pink: #e12885;
 
 @ball_blue: #3399cc;
+@blue: #3cbeff;
 @highlighter_yellow: rgba(204, 255, 0, 0.8);
-@text_shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
+@text_shadow: -1px 0 @navbar_color, 0 1px @navbar_color, 1px 0 @navbar_color, 0 -1px @navbar_color;
+/*@text_shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;*/
 
 @import url('https://fonts.googleapis.com/css?family=Gaegu');
 @import url('https://fonts.googleapis.com/css2?family=Pacifico');
 @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker');
 
 body {
-  color: @ball_blue;
+  color: @blue;
   text-shadow: @text_shadow;
   font-family: 'Gaegu', cursive;
 }

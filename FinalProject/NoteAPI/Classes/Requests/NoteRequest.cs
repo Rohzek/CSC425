@@ -2,6 +2,7 @@
 using NoteAPI.Scaffolding;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -9,6 +10,7 @@ namespace NoteAPI.Classes.Requests
 {
     public class NoteRequest : IComparable<NoteRequest>
     {
+        public string Username { get; set; }
         public int NoteID { get; set; }
         public string ClassID { get; set; }
         public string Note { get; set; }
@@ -19,9 +21,102 @@ namespace NoteAPI.Classes.Requests
         public DateTime UploadDate { get; set; }
         public string[] Users { get; set; }
 
+        public NoteRequest() { }
+
+        public NoteRequest(CSC425Context db, Notes note, Users user) 
+        {
+            Username = user.Username;
+            NoteID = note.NotesId;
+            ClassID = note.ClassId;
+            Note = note.Note;
+            NoteFile = note.NoteFile;
+            NoteFileName = note.NoteFileName;
+            Extension = note.Extension;
+            NoteDate = note.NoteDate;
+            UploadDate = note.UploadDate;
+
+            var noteviewers = db.NoteViewers.Where(n => n.NoteId.Equals(NoteID)).ToList();
+            var list = new List<string>();
+
+            foreach (NoteViewers nv in noteviewers)
+            {
+                var usr = db.Users.Where(u => u.UserId.Equals(nv.UserId)).FirstOrDefault();
+                list.Add(user.Username);
+            }
+
+            Users = list.ToArray();
+        }
+
         public string AddNote(CSC425Context db) 
         {
-            return "";
+            var noteCreator = db.Users.Where(u => u.Username.ToLower().Equals(Username.ToLower())).FirstOrDefault();
+
+            if (NoteDate.Year == 0001) 
+            {
+                this.NoteDate = DateTime.Now;
+            }
+
+            this.UploadDate = DateTime.Now;
+
+            Notes note = new Notes();
+            note.UserId = noteCreator.UserId;
+            note.ClassId = this.ClassID;
+            note.Note = this.Note;
+            note.NoteFile = this.NoteFile;
+            note.NoteFileName = this.NoteFileName;
+            note.Extension = this.Extension;
+            note.NoteDate = this.NoteDate;
+            note.UploadDate = this.UploadDate;
+
+            foreach (string user in Users) 
+            {
+                var allowedUser = db.Users.Where(u => u.Username.ToLower() == user.ToLower()).FirstOrDefault();
+
+                if (allowedUser != null)
+                {
+                    NoteViewers nv = new NoteViewers();
+                    nv.NoteId = note.NotesId;
+                    nv.UserId = allowedUser.UserId;
+                    
+                    note.NoteViewers.Add(nv);
+                }
+            }
+
+            db.Notes.Add(note);
+            db.SaveChangesAsync();
+
+            return JsonConvert.SerializeObject(new ReturnCode(200, "OK", $"Note added successfully."));
+        }
+
+        public string UpdateNote(CSC425Context db) 
+        {
+            // Note sure if I want to implement this? I doubt notes change. If they do, you can just reupload.
+            // Leave this here as a placeholder for now though.
+            return JsonConvert.SerializeObject(new ReturnCode(200, "OK", $"Note added successfully."));
+        }
+
+        public string DeleteNote(CSC425Context db) 
+        {
+            var noteviewers = db.NoteViewers.Where(n => n.NoteId.Equals(NoteID)).ToList();
+
+            if (noteviewers.Count > 0) 
+            {
+                foreach (NoteViewers nv in noteviewers)
+                {
+                    db.NoteViewers.Remove(nv);
+                }
+            }
+            
+            var note = db.Notes.Where(n => n.NotesId.Equals(NoteID)).FirstOrDefault();
+
+            if (note != null) 
+            {
+                db.Notes.Remove(note);
+            }
+
+            db.SaveChangesAsync();
+
+            return JsonConvert.SerializeObject(new ReturnCode(200, "OK", $"Note with ID {NoteID} deleted successfully."));
         }
 
         public static string GetNote(CSC425Context db, string username)
@@ -74,21 +169,38 @@ namespace NoteAPI.Classes.Requests
             }
 
             // Sanitize the notes because we don't need a reference to each author's information going back with each one
-            foreach (Notes note in notes.ToList<Notes>())
+            if (notes.Count > 0) 
             {
-                var req = new NoteRequest();
+                foreach (Notes note in notes)
+                {
+                    var req = new NoteRequest();
 
-                req.NoteID = note.NotesId;
-                req.ClassID = note.ClassId;
-                req.Note = note.Note;
-                req.NoteFile = note.NoteFile;
-                req.NoteFileName = note.NoteFileName;
-                req.Extension = note.Extension;
-                req.NoteDate = note.NoteDate;
-                req.UploadDate = note.UploadDate;
-                req.Users = null;
+                    var author = db.Users.Where(u => u.UserId.Equals(note.UserId)).FirstOrDefault();
 
-                output.Add(req);
+                    req.Username = author.Username;
+                    req.NoteID = note.NotesId;
+                    req.ClassID = note.ClassId;
+                    req.Note = note.Note;
+                    req.NoteFile = note.NoteFile;
+                    req.NoteFileName = note.NoteFileName;
+                    req.Extension = note.Extension;
+                    req.NoteDate = note.NoteDate;
+                    req.UploadDate = note.UploadDate;
+
+                    var totalViewers = db.NoteViewers.Where(n => n.NoteId.Equals(note.NotesId));
+                    var listOfViewers = new List<String>();
+
+                    foreach (NoteViewers nv in totalViewers.ToList())
+                    {
+                        var usr = db.Users.Where(u => u.UserId.Equals(nv.UserId)).FirstOrDefault();
+                        Debug.WriteLine(usr.Username);
+                        listOfViewers.Add(usr.Username);
+                    }
+
+                    req.Users = listOfViewers.ToArray();
+
+                    output.Add(req);
+                }
             }
 
             // Sort notes by most recent, probably

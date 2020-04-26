@@ -51,10 +51,31 @@ namespace NoteAPI
                     builder.AllowAnyOrigin();
                     builder.AllowAnyHeader();
                     builder.AllowAnyMethod();
+                    builder.Build();
+                });
+
+                options.AddDefaultPolicy(
+                builder =>
+                {
+                    builder.WithOrigins("http://rohzek.cf",
+                                        "http://www.rohzek.cf",
+                                        "http://rohzek.cf:8080",
+                                        "http://www.rohzek.cf:8080",
+                                        "http://localhost",
+                                        "http://localhost:9000",
+                                        "http://*",
+                                        "http://*.*",
+                                        "http://*.*:*");
+                    builder.AllowAnyOrigin();
+                    builder.AllowAnyHeader();
+                    builder.AllowAnyMethod();
+                    builder.Build();
                 });
             });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,6 +90,7 @@ namespace NoteAPI
                 app.UseHsts();
             }
 
+            app.UseCors();
             app.UseCors(MyAllowSpecificOrigins);
 
             app.UseHttpsRedirection();

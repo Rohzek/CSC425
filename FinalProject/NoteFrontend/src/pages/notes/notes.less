@@ -1,6 +1,51 @@
+@bg_color: #000000a8;
+@new_bg_color: #000000dc;
+
 .notespage_display {
     margin-top: 10px;
     margin-left: 30px;
     margin-right: 30px;
     text-align: center;
+}
+
+button {
+    border: thick;
+    color: black;
+    margin: 2px;
+}
+
+.searchbar_label .searchbar_input .searchbar_button {
+    display: inline-block;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+input[type="datetime-local"] {
+    color: black;
+}
+
+input[type="file"] {
+    width: 200px;
+}
+
+input[type="text"] {
+    color: black;
+    margin: 4px;
+}
+
+.updateViewer {
+    width: 100px;
+}
+
+.table {
+    background-color: @bg_color;
+    color: white;
+}
+
+th {
+    text-align: center;
+}
+
+.newrow {
+    background-color: @new_bg_color;
 }
