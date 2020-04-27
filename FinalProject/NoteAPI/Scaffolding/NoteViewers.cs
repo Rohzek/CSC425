@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace NoteAPI.Scaffolding
+﻿namespace NoteAPI.Scaffolding
 {
     public partial class NoteViewers
     {

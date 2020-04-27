@@ -96,6 +96,7 @@ namespace NoteAPI.Controllers
             return req.DeleteNote(db);
         }
 
+        // Response for browser's preflight CORS check
         public HttpResponseMessage Options()
         {
             var response = new HttpResponseMessage();

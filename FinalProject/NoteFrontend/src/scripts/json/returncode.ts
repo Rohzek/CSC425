@@ -1,3 +1,6 @@
+/*
+ * This class is an easy way to parse and work with the return codes from the API
+ */
 export class ReturnCode {
     Code: number;
     Name: string;

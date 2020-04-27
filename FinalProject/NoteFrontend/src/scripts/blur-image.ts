@@ -1,5 +1,8 @@
 import {autoinject} from 'aurelia-framework';
 
+/*
+ * Didn't get used - would have been used in Settings or potentially multiple places if user avatars would have been implemented
+ */
 @autoinject
 export class BlurImageCustomAttribute {
   constructor(private element: Element) {

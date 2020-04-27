@@ -92,7 +92,7 @@ namespace NoteAPI.Classes.Requests
         {
             // Note sure if I want to implement this? I doubt notes change. If they do, you can just reupload.
             // Leave this here as a placeholder for now though.
-            return JsonConvert.SerializeObject(new ReturnCode(200, "OK", $"Note added successfully."));
+            return JsonConvert.SerializeObject(new ReturnCode(100, "Continue", $"Updating not implemented."));
         }
 
         public string DeleteNote(CSC425Context db) 

@@ -29,6 +29,7 @@ namespace NoteAPI.Controllers
             return changes.UsernameAndPasswordUpdate(db, remoteIPAddress);
         }
 
+        // Response for browser's preflight CORS check
         public HttpResponseMessage Options()
         {
             var response = new HttpResponseMessage();

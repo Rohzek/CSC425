@@ -5,14 +5,9 @@ namespace NoteAPI.Scaffolding
 {
     public partial class CSC425Context : DbContext
     {
-        public CSC425Context()
-        {
-        }
+        public CSC425Context() {}
 
-        public CSC425Context(DbContextOptions<CSC425Context> options)
-            : base(options)
-        {
-        }
+        public CSC425Context(DbContextOptions<CSC425Context> options): base(options) {}
 
         public virtual DbSet<Logins> Logins { get; set; }
         public virtual DbSet<NoteViewers> NoteViewers { get; set; }

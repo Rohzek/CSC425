@@ -1,4 +1,5 @@
 <template>
+  <!-- This page basically doesn't get shown, other pages get loaded into this via the router-view display -->
   <require from="bootstrap/dist/css/bootstrap.min.css"></require>
   <require from="font-awesome/css/font-awesome.min.css"></require>
   <require from="./styles.css"></require>
@@ -8,6 +9,7 @@
   <nav-bar router.bind="router"></nav-bar>
 
   <div class="page-host">
+    <!-- Background is loaded here so that it gets shown behind all other pages that load into the router-view -->
     <div class="bg"></div>
     <router-view></router-view>
   </div>

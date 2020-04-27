@@ -1,5 +1,5 @@
-import { autoinject, Aurelia } from 'aurelia-framework';
-import {HttpClient, json, HttpClientConfiguration} from 'aurelia-fetch-client';
+import { autoinject } from 'aurelia-framework';
+import {HttpClient} from 'aurelia-fetch-client';
 import {ReturnCode} from '../../scripts/json/returncode';
 
 @autoinject

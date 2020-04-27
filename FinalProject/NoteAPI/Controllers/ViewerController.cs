@@ -46,6 +46,7 @@ namespace NoteAPI.Controllers
             return user.RemoveUser(db);
         }
 
+        // Response for browser's preflight CORS check
         public HttpResponseMessage Options()
         {
             var response = new HttpResponseMessage();

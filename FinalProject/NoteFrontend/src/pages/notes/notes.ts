@@ -27,7 +27,6 @@ export class Notes {
         httpClient.configure(config => {
           config
             .withBaseUrl('http://rohzek.cf:8080/api/v1/')
-            //.withBaseUrl('http://localhost:8080/api/v1/')
             .withDefaults({
               headers: {
                 'Content-Type': 'application/json',
@@ -57,6 +56,7 @@ export class Notes {
         this.callAPIGET(Config.Username, this.search);
       }
 
+      // Gets the notes
       callAPIGET(username, search) {
         this.httpClient.fetch('notes' + this.APIKEY + '&username=' + username + (search !== null && search.length > 0 ? '&search=' + search : ''), {
             method: 'GET',
@@ -71,6 +71,7 @@ export class Notes {
           });
       }
 
+      // Sends the notes
       callAPIPOST() {
         this.httpClient.fetch('notes' + this.APIKEY, {
             method: 'POST',
@@ -84,6 +85,7 @@ export class Notes {
           this.reload();
       }
 
+      // Deletes notes
       callAPIDELETE(NoteID) 
       {
         this.httpClient.fetch('notes' + this.APIKEY + '&noteid=' + NoteID + '&username=' + this.user, {
@@ -98,6 +100,7 @@ export class Notes {
         this.reload();
       }
 
+      // Adds users to viewer list
       callAPIADDUSER(update) {
         this.httpClient.fetch('viewer' + this.APIKEY, {
             method: 'PUT',
@@ -111,6 +114,7 @@ export class Notes {
           this.reload();
       }
 
+      // Removes users from viewer list
       callAPIREMOVEUSER(update) {
         this.httpClient.fetch('viewer' + this.APIKEY + '&noteid=' + update.NoteID + '&username=' + update.Username, {
             method: 'DELETE',
@@ -180,6 +184,7 @@ export class Notes {
         this.download(name + ext, text);
       }
 
+      // Creates a localized download link
       download(filename, text) {
         var element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-16,' + encodeURIComponent(text));
@@ -211,6 +216,7 @@ export class Notes {
         }
       }
 
+      // Refreshes the page
       reload() {
         window.location.reload();
       }

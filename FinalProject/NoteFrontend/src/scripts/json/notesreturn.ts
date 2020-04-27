@@ -1,3 +1,6 @@
+/*
+ * This class allows us to parse and export the Notes from the API
+ */
 export class NotesReturn {
     Username: string;
     NoteID: number;

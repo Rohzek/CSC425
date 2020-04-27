@@ -3,6 +3,6 @@ export class Logout {
         localStorage.setItem('username', "");
         localStorage.setItem('sessionID', "");
 
-        location.assign('/');
+        location.assign('/'); // Auto redirects back home
   }
 }

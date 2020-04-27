@@ -12,6 +12,10 @@ namespace NotesAPI.Classes.Connections
         static readonly string file = "ConnectionSettings.json";
         static ConnectionSetting settings = new ConnectionSetting();
 
+        /**
+         * This is used to obsfucate the database connection by putting it into a JSON file 
+         * that is omitted with out gitignore 
+         */
         public static void Load()
         {
             using (StreamReader reader = new StreamReader(file))
@@ -24,6 +28,9 @@ namespace NotesAPI.Classes.Connections
             }
         }
 
+        /**
+         * Creates a blank JSON file with default values
+         */
         public static void Create()
         {
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);

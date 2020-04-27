@@ -39,7 +39,6 @@ namespace NoteAPI.Classes
             db.SaveChangesAsync();
 
             email.SendMessage(new System.Net.Mail.MailAddress(user.EmailAddress, user.Username), "Please verify your account on Rohzek's Note Service", $"Hello!\n\nPlease click this link to verify your account: https://rohzek.cf:8080/api/v1/verify?verification_code={user.SecretKey}");
-            //email.SendMessage(new System.Net.Mail.MailAddress(user.EmailAddress, user.Username), "Please verify your account on Rohzek's Note Service", $"Hello!\n\nPlease click this link to verify your account: https://localhost:8080/api/v1/verify?verification_code={user.SecretKey}");
 
             return JsonConvert.SerializeObject(new SessionIDHolder(user.Username, user.SessionId));
         }

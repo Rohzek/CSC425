@@ -30,6 +30,7 @@ namespace NoteAPI.Controllers
             return new VerifyUserRequest(secret).AttemptVerification(db, remoteIPAddress);
         }
 
+        // Response for browser's preflight CORS check
         public HttpResponseMessage Options()
         {
             var response = new HttpResponseMessage();

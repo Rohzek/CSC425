@@ -23,7 +23,7 @@ namespace NoteAPI.Classes.Email
 
         public void SendMessage(MailAddress to, string subject, string body)
         {
-            // From, To, Subject, Body
+            // MM constructor overrides: From, To, Subject, Body
             MailMessage mm = new MailMessage(from, to);
             mm.Subject = subject;
             mm.Body = body;
